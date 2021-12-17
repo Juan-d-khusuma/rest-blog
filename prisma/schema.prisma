@@ -1,0 +1,134 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Comment {
+  id        Int              @id @default(autoincrement())
+  content   String
+  postId    Int
+  userId    Int
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  Post      Post             @relation(fields: [postId], references: [id], onDelete: Cascade)
+  User      User             @relation(fields: [userId], references: [id], onDelete: SetNull)
+  Dislikes  CommentDislike[]
+  Likes     CommentLike[]
+}
+
+model CommentDislike {
+  commentId Int
+  userId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([commentId, userId])
+}
+
+model CommentLike {
+  commentId Int
+  userId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([commentId, userId])
+}
+
+model Post {
+  id        Int           @id @default(autoincrement())
+  title     String
+  content   String
+  userId    Int
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  slug      String        @unique
+  User      User          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  Comments  Comment[]
+  Dislikes  PostDislike[]
+  Likes     PostLike[]
+  TagPosts  TagPost[]
+}
+
+model PostDislike {
+  postId    Int
+  userId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([postId, userId])
+}
+
+model PostLike {
+  postId    Int
+  userId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([postId, userId])
+}
+
+model Tag {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  TagPosts  TagPost[]
+}
+
+model TagPost {
+  postId    Int
+  tagId     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  Tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([postId, tagId])
+}
+
+model User {
+  id               Int              @id @default(autoincrement())
+  username         String           @unique @db.VarChar(255)
+  email            String           @unique
+  password         String
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  Comments         Comment[]
+  DislikedComments CommentDislike[]
+  LikedComments    CommentLike[]
+  Posts            Post[]
+  DislikedPosts    PostDislike[]
+  LikedPosts       PostLike[]
+  Followers        Follow[]         @relation("follower")
+  Followings       Follow[]         @relation("following")
+}
+
+model Follow {
+  Follwer     User     @relation("follower", fields: [followerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  followerId  Int
+  Following   User     @relation("following", fields: [followingId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  followingId Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@id([followerId, followingId])
+}
+
+model Session {
+  id        String   @id
+  sid       String   @unique
+  data      String
+  expiresAt DateTime
+}
