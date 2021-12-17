@@ -126,9 +126,10 @@ model Follow {
   @@id([followerId, followingId])
 }
 
-model Session {
-  id        String   @id
-  sid       String   @unique
+model RToken {
+  guid      String   @id
+  token     String   @unique
   data      String
-  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

@@ -1,12 +1,15 @@
 {
     "compilerOptions": {
-      "target": "es2018",
+      "target": "ES5",
       "module": "commonjs",
       "lib": ["es2018", "esnext.asynciterable"],
       "experimentalDecorators": true,
-      "emitDecoratorMetadata": true
-    },
-    "include": [
-      "src/**/*"
-    ]
+      "emitDecoratorMetadata": true,
+      "outDir": "./dist",
+      "rootDir": ".",
+      "typeRoots": [
+        "./node_modules/@types",
+        "./@types"
+      ],
+    }
 }
